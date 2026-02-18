@@ -60,7 +60,14 @@ input {
 }
 .btn_acess{
     width: 50%;
-    margin-top: 30px;
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    margin:20px 0px 20px 0px;
     background-color: rgb(101, 157, 241);
     color: #fff;
+}
+.btn_acess:hover{
+    background-color: #2771c7;
 }

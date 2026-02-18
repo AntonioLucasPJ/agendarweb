@@ -4,6 +4,9 @@ import img1 from './img/mecanicoslogin.jpg';
 import { Navigate, Link } from 'react-router';
 
 export default function Cadastro(){
+    function HandleSingUp(){
+        
+    }
     return(
         <div className={styles.container}>
             <div className={styles.forminput}>
@@ -17,7 +20,7 @@ export default function Cadastro(){
                     <input placeholder='Password...'></input>                 
                 </div>
                 <button className={styles.btn_acess}>Cadastrar</button>
-                <p>Já possui uma conta?<Link to='/login'>Clique aqui</Link></p>
+                <p>Já possui uma conta?<Link to='/'>Clique aqui</Link></p>
             </div>
 
             <div className={styles.containerimg}>

@@ -1,21 +1,101 @@
 import { Link, useNavigate } from "react-router"
 import { Navbar } from "../components/navbar/index.jsx"
-import { mecanicos, appointments } from '../../constants/data.js'
+import { mecanicos } from "../../context/data.js"
 import styles from './appointments.module.css'
-import {Appointment} from "../components/appointment/index.jsx"
+import { Appointment } from "../components/appointment/index.jsx"
+import { api } from "../../service/api.js"
+import { useContext, useEffect, useState } from "react"
+import { UserContext } from "../../context/UserLogin.jsx"
+import { ContextDeleteAppointments } from "../../context/Deleteappointments.jsx"
+import { ModalDelete } from "../components/Modal/index.jsx"
+import { da, de, id } from "date-fns/locale"
+import { AlertMessage } from "../components/Alert/index.jsx"
+import { NewAppointments } from "../../context/Newappointments.jsx"
 function Appointments() {
+    const [appointmentsbd, setappointmentsbd] = useState([])
+    const [loading, setloading] = useState(true)
+    const [mecanicosapi ,setmecanicosapi] = useState([])
+    const [id_mecanico,setidmecanico] = useState('')
+    const [deleteauth, setdeleteauth] = useState(false)
+    const [id_appointementdelete, setidappointmentdelete] = useState('')
+    const [alertdelete, setalertdelete] = useState(false)
+    const { token, authorizate, user } = useContext(UserContext)
+    const [message, setmessage] = useState('')
+    const { alertmsg, setalertmsg, DeleteAppointments } = useContext(ContextDeleteAppointments)
     const navigate = useNavigate()
-    function Editar(id_appointement,id_mecanico,id_service) {
-        navigate("/appointments/edit/"+ id_appointement,{
-            id_mecanico,id_service
-        })
+    useEffect(() => {
+        if (!loading && alertmsg) {
+            const timer = setTimeout(() => {
+                setalertmsg(false)
+            }, 5000)
+            return () => clearTimeout(timer)
+        }
+    }, [alertmsg])
+    useEffect(() => {
+        const carregartela = async () => {
+            setloading(true)
+            const TokenReal = token || localStorage.getItem('token')
+            if (!token && !authorizate) {
+                return navigate("/")
+            }
+            try {
+                await new Promise(resolve => setTimeout(resolve, 1500))
+                await LoadDateapi(TokenReal)
+            } catch (error) {
+                console.log(error)
+            } finally {
+                setloading(false)
+            }
+        }
+        const dadosapi = async () => {
+            const res = await api.get('/mecanicos')
+            setmecanicosapi(res.data)
+            setidmecanico(res.data.id_mecanico)
+        }
+        dadosapi()
+        carregartela()
+    }, [token, authorizate, DeleteAppointments])
+    //Appointment Get All
+    async function LoadDateapi(token) {
+        api.defaults.headers.Authorization = `Bearer ${token}`
+        const res = await api.get('/appointmentsall')
+        setappointmentsbd(res.data)
+    }
+    function Editar(id_appointement) {
+        navigate("/appointments/edit/" + id_appointement)
     }
     function Delete(id_appointement) {
-        console.log('Deletar...' + id_appointement)
+        setidappointmentdelete(id_appointement)
+        setalertdelete(true)
+    }
+    async function DeletarBD() {
+        const response = await DeleteAppointments(id_appointementdelete)
+        setmessage(response)
+        setalertdelete(false)
+
     }
     return (
         <div className='container-fluid mt-page'>
+            {loading && (
+                <div className={styles.load_overlay}>
+                    <div className={styles.spinner}></div>
+                    <p className={styles.textload}>Carredando dados...</p>
+                </div>
+            )
+            }
+            {alertdelete && (
+                <ModalDelete
+                    titulo='Deletar'
+                    description='Voçê tem certeza que deseja deletar esse atendimento?'
+                    onclick={() => setalertdelete(false)}
+                    ondelete={() => DeletarBD()}
+                ></ModalDelete>
+            )}
+            {alertmsg && (
+                <AlertMessage msg={message}></AlertMessage>
+            )}
             <Navbar></Navbar>
+
             <div className='d-flex justify-content-between align-items-center'>
                 <div>
                     <h2 className="d-inline">Agendamentos...</h2>
@@ -24,14 +104,18 @@ function Appointments() {
                         to="/appointments/add"
                     >Novo Agendamento</Link>
                 </div>
-                <div className='d-flex justify-content-end'>
-                    <input id='startDate' className='form-control' type="date"></input>
-                    <span className="m-2">Até</span>
-                    <input id='startDate' className='form-control' type="date"></input>
-                    <div className="form-control ms-3 me-3">
-                        <select name="Mecanico" id='mecanico'>
+                <div className='d-flex justify-content-end align-items-center'>
+                    <input id='startDate'
+                        className='form-control'
+                        type="date"></input>
+                    <span className="m-3">Até</span>
+                    <input id='startDate'
+                        className='form-control'
+                        type="date"></input>
+                    <div className="form-control ms-3 me-3 h-50">
+                        <select className="w-auto" name="Mecanico" id='mecanico'>
                             <option value="" className={styles.opvalues}>Todos os mecanicos</option>
-                            {mecanicos.map(item => {
+                            {mecanicosapi.map(item => {
                                 return <option key={item.id_mecanico} value={item.id_mecanico}>{item.name}</option>
                             })}
                         </select>
@@ -53,11 +137,12 @@ function Appointments() {
                         </tr>
                     </thead>
                     <tbody>
-                        {appointments.map(item => {
+                        {appointmentsbd.map(item => {
                             return (
                                 <Appointment
-                                    key={item.id_appointement}
-                                    id_appointement={item.id_appointement}
+                                    key={item.id_appointment}
+                                    id_appointement={item.id_appointment}
+                                    client={item.client}
                                     service={item.service}
                                     mecanico={item.mecanico}
                                     booking_date={item.booking_date}
