@@ -14,8 +14,8 @@ import { NewAppointments } from "../../context/Newappointments.jsx"
 function Appointments() {
     const [appointmentsbd, setappointmentsbd] = useState([])
     const [loading, setloading] = useState(true)
-    const [mecanicosapi ,setmecanicosapi] = useState([])
-    const [id_mecanico,setidmecanico] = useState('')
+    const [mecanicosapi, setmecanicosapi] = useState([])
+    const [id_mecanico, setidmecanico] = useState('')
     const [deleteauth, setdeleteauth] = useState(false)
     const [id_appointementdelete, setidappointmentdelete] = useState('')
     const [alertdelete, setalertdelete] = useState(false)
@@ -41,19 +41,24 @@ function Appointments() {
             try {
                 await new Promise(resolve => setTimeout(resolve, 1500))
                 await LoadDateapi(TokenReal)
+                api.defaults.authorization = `Bearer ${TokenReal}`
+                const res = await api.get('/mecanicos')
+                setmecanicosapi(res.data)
+                setidmecanico(res.data.id_mecanico)
             } catch (error) {
                 console.log(error)
             } finally {
                 setloading(false)
             }
         }
-        const dadosapi = async () => {
-            const res = await api.get('/mecanicos')
-            setmecanicosapi(res.data)
-            setidmecanico(res.data.id_mecanico)
-        }
-        dadosapi()
+        // const dadosapi = async () => {
+        //     api.defaults.authorization = `Bearer ${token}`
+        //     const res = await api.get('/mecanicos')
+        //     setmecanicosapi(res.data)
+        //     setidmecanico(res.data.id_mecanico)
+        // }
         carregartela()
+        // dadosapi()
     }, [token, authorizate, DeleteAppointments])
     //Appointment Get All
     async function LoadDateapi(token) {
@@ -81,8 +86,7 @@ function Appointments() {
                     <div className={styles.spinner}></div>
                     <p className={styles.textload}>Carredando dados...</p>
                 </div>
-            )
-            }
+            )}
             {alertdelete && (
                 <ModalDelete
                     titulo='Deletar'
@@ -136,25 +140,36 @@ function Appointments() {
                             <th scope="col" className={styles.colbuttons}></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {appointmentsbd.map(item => {
-                            return (
-                                <Appointment
-                                    key={item.id_appointment}
-                                    id_appointement={item.id_appointment}
-                                    client={item.client}
-                                    service={item.service}
-                                    mecanico={item.mecanico}
-                                    booking_date={item.booking_date}
-                                    booking_hour={item.booking_hour}
-                                    clickedit={Editar}
-                                    clickdelete={Delete}
-                                ></Appointment>
-                            )
-                        })}
-
-                    </tbody>
+                    {appointmentsbd && (
+                        <tbody>
+                            {appointmentsbd.map(item => {
+                                return (
+                                    <Appointment
+                                        key={item.id_appointment}
+                                        id_appointement={item.id_appointment}
+                                        client={item.client}
+                                        service={item.service}
+                                        mecanico={item.mecanico}
+                                        booking_date={item.booking_date}
+                                        booking_hour={item.booking_hour}
+                                        price={item.price}
+                                        clickedit={Editar}
+                                        clickdelete={Delete}
+                                    ></Appointment>
+                                )
+                            })}
+                        </tbody>
+                    )}
                 </table>
+                {appointmentsbd == '' ?
+                    <div className={styles.contentempty}>
+                        <h1>Dados não carregados</h1>
+                        <button
+                            className={styles.rcgbutton}
+                            onClick={(e) => console.log('')}>Atualizar Pagina</button>
+                    </div>
+                    : ''}
+
             </div>
 
         </div>

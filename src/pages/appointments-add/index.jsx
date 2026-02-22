@@ -11,7 +11,7 @@ import { Modal } from "../components/Modal/index.jsx"
 registerLocale('pt-BR', ptBR)
 export default function AppointmentAdd() {
     const { id_appointement } = useParams()
-    const { CreateAppointment,
+    const { CreateAppointment,EditAppointment,
         id_mecanico, setidmecanico,
         id_service, setidservice,
         mecanicosapi, setmecanicosapi,
@@ -21,10 +21,13 @@ export default function AppointmentAdd() {
         notification,
         activenotification, setactivenotification
     } = useContext(NewAppointments)
-
     const [buttondisable, setbuttondisable] = useState(true)
     function LoadNewAppointments() {
         CreateAppointment()
+    }
+    function Edit(){
+        EditAppointment(id_appointement)
+        
     }
     const apenasdiasuteis = (date) => {
         if (!date) return true
@@ -115,7 +118,7 @@ export default function AppointmentAdd() {
                             }
                         </div>
                     </div>
-                    <div className="col-md-6 mt-1">
+                    <div className="col-md-3 mt-3">
                         <label htmlFor="bookingDate" className="form-label">Data</label>
                         <DatePicker
                             className="form-control w-100"
@@ -132,7 +135,7 @@ export default function AppointmentAdd() {
                     </div>
                     <div className="col-6 mt-3">
                         <label htmlFor="bookingHour" className="form-label">Hora</label>
-                        <select disabled={selectdata == '' ? true : false} required={true} onChange={(e) => setbookhours(e.target.value)}>
+                        <select className="border" disabled={selectdata == '' ? true : false} required={true} onChange={(e) => setbookhours(e.target.value)}>
                             <option value='0'>Horarios</option>
                             <option value='09:00'>09:00</option>
                             <option value='10:00'>10:00</option>
@@ -147,9 +150,9 @@ export default function AppointmentAdd() {
                             </Link>
                             <button
                                 className="btn btn-primary"
-                                onClick={LoadNewAppointments}
+                                onClick={id_appointement >0? Edit:LoadNewAppointments}
                                 disabled={selectdata == null ? true : false}
-                            >Salvar Dados</button>
+                            >{id_appointement>0?'Editar Dados':'Salvar Dados'}</button>
                         </div>
                     </div>
                 </div>

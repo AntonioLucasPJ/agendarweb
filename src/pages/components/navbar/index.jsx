@@ -33,7 +33,7 @@ export function Navbar() {
                 <div className='collapse navbar-collapse d-flex justify-content align-items-center' id='navbarSupportedContent'>
                         <ul className='navbar-nav me-auto mb-2 mg-lg-0'>
                             <li className="nav-item">
-                                <Link className="nav-link active text-white " to='/appointments'>Agendamentos</Link>
+                                <Link className="nav-link active text-white" to='/appointments'>Agendamentos</Link>
                             </li>
                             <li className='nav-item'>
                                 <Link className="nav-link active text-white" aria-current="page" >Mecanicos</Link>
